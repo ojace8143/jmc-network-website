@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * JMC Network design tokens.
+ * Block-inspired language: 2px borders, 4px hard offset shadows, square corners.
+ */
+@theme {
+  /* Surfaces */
+  --color-bg: #0b0e0c;
+  --color-surface: #111512;
+  --color-surface-2: #171c18;
+  --color-border: #232b25;
+  --color-border-strong: #314033;
+
+  /* Text */
+  --color-ink: #e8ede8;
+  --color-ink-muted: #9aa69c;
+  --color-ink-faint: #67736a;
+
+  /* JMC brand (moss green) */
+  --color-moss: #9cc08a;
+  --color-moss-deep: #7ba05b;
+  --color-moss-dark: #4e6b42;
+
+  /* NeoForge (amber) */
+  --color-forge: #e5b078;
+  --color-forge-deep: #c98b3e;
+
+  /* Fabric (teal) */
+  --color-weave: #7ed4c4;
+  --color-weave-deep: #4fa393;
+
+  /* Status */
+  --color-online: #5dbb63;
+  --color-offline: #c2554f;
+  --color-unknown: #c9a227;
+
+  /* Typography */
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
+
+  /* Block-style shadows (hard offset, no blur) */
+  --shadow-block: 4px 4px 0 0 #000000;
+  --shadow-block-sm: 3px 3px 0 0 #000000;
+  --shadow-block-moss: 4px 4px 0 0 #4e6b42;
+  --shadow-block-forge: 4px 4px 0 0 #c98b3e;
+  --shadow-block-weave: 4px 4px 0 0 #4fa393;
+
+  /* Motion */
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-drift: drift 60s linear infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes drift {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 240px 240px;
+    }
+  }
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-moss-deep);
+  color: #0b0e0c;
+}
+
+/* Subtle scrollbars that fit the theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+/* Focus rings: visible, themed, blocky */
+:focus-visible {
+  outline: 2px solid var(--color-moss);
+  outline-offset: 2px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
