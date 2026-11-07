@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 /*
+ * Scope class detection to src/ so non-source files (e.g. the GitHub
+ * Actions workflow's "contents: read" key) are never scanned for utilities.
+ * Paths in @source are relative to this CSS file.
+ */
+@source "./";
+
+/*
  * JMC Network design tokens.
  * Block-inspired language: 2px borders, 4px hard offset shadows, square corners.
  */

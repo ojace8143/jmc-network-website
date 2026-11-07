@@ -11,6 +11,7 @@ import {
   Wrench,
   Zap,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getServer, site } from "../config/servers";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { useServerStatus } from "../hooks/useServerStatus";
@@ -92,9 +93,9 @@ function ServerDetail({ serverId }: { serverId: "neo" | "fab" }) {
       <nav aria-label="Breadcrumb" className="mb-8">
         <ol className="flex items-center gap-2 text-xs text-ink-faint">
           <li>
-            <a href="/" className="hover:text-ink">
+            <Link to="/" className="hover:text-ink">
               Home
-            </a>
+            </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li className="text-ink-muted" aria-current="page">
