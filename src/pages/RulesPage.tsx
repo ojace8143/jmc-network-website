@@ -12,7 +12,7 @@ export function RulesPage() {
       <SectionHeading
         eyebrow="House rules"
         title="Server rules"
-        description="These rules apply to both JMC servers. Breaking them can result in a warning, temporary mute or ban, or permanent ban — staff use their best judgment and will explain every action. When in doubt, ask a staff member."
+        description="These rules apply to both JMC servers. Enforcement is kept simple and reasonable — punishments fit the situation, and you'll always get an explanation. When in doubt, ask a staff member."
       />
 
       <div className="mt-10 space-y-6">
