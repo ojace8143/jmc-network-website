@@ -17,7 +17,7 @@ export function CopyableIp({
   const { copied, copy } = useCopyToClipboard(value);
 
   return (
-    <span className={cn("inline-flex items-stretch", className)}>
+    <span className={cn("inline-flex items-center", className)}>
       <code className="font-pixel text-[11px] leading-none text-ink sm:text-xs">
         {value}
       </code>

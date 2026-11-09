@@ -6,42 +6,39 @@ export type RuleSection = {
 /**
  * Server rules shown on the Rules page.
  *
- * These are sensible community defaults. Edit them to match how you actually
- * moderate the servers — this file is the single source of truth.
+ * Written to match how the network is actually moderated: laid-back,
+ * high-trust, reasonable enforcement. This file is the single source of
+ * truth — edit it whenever the rules change.
  */
 export const ruleSections: RuleSection[] = [
   {
     heading: "General",
     rules: [
-      "Be respectful. No harassment, hate speech, or personal attacks.",
-      "No spam or excessive use of caps, emotes, or repeated messages.",
-      "One person, one account. No alt abuse.",
-      "English is the primary language in global chat.",
+      "Keep it chill. No insanely vulgar stuff.",
+      "One person, one account.",
+      "I'm pretty reasonable about rules and punishments if you break them, so don't abuse it.",
     ],
   },
   {
-    heading: "Building & Gameplay",
+    heading: "Building and Gameplay",
     rules: [
-      "No griefing or destroying other players' builds.",
-      "Build at least 100 blocks from spawn or another player's build.",
-      "No lag machines, chunk-loaders, or resource farms that tax the server.",
-      "Keep builds within reasonable bounds. No world-border or sky builds without staff approval.",
+      "No griefing, only in the spawn area, unless otherwise specified.",
+      "No lag machines, or anything else that seriously taxes the performance of the server.",
+      "Keep builds reasonable.",
     ],
   },
   {
-    heading: "Cheating & Exploits",
+    heading: "Cheating, Exploits and Mods",
     rules: [
-      "No cheats, hacks, X-ray, or any unfair advantage.",
-      "No duping, item stacking exploits, or NPE abuse.",
-      "Report bugs to staff instead of exploiting them.",
+      "No huge cheats, like xray, etc. Freecam MAY BE PERMITTED under certain circumstances or specific server rules.",
+      "No duping, stacking exploits, or NPE abuse.",
+      "Report bugs to server owners or maintainers instead of exploiting them.",
     ],
   },
   {
-    heading: "Chat & Community",
+    heading: "Chat",
     rules: [
-      "No advertising or self-promotion of other servers.",
-      "No sharing of personal information (yours or others') — doxxing is a ban.",
-      "Discord rules apply in all voice and text channels.",
+      "High trust. Just be reasonable and you won't receive a punishment or ban.",
     ],
   },
 ];

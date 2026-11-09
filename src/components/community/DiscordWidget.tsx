@@ -10,7 +10,7 @@ import { site } from "../../config/servers";
 export function DiscordWidget() {
   return (
     <div
-      className="overflow-hidden border-2 border-border bg-surface shadow-[4px_4px_0_0_#000]"
+      className="overflow-hidden bg-surface shadow-[4px_4px_0_0_#000]"
       role="region"
       aria-label="Discord community widget"
     >
