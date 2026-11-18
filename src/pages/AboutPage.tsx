@@ -1,4 +1,5 @@
-import { Handshake, Heart, Users } from "lucide-react";
+import { ArrowRight, Handshake, Heart, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { site } from "../config/servers";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { Card } from "../components/ui/Card";
@@ -93,6 +94,19 @@ export function AboutPage() {
           know.
         </p>
       </Card>
+
+      <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t-2 border-border pt-8">
+        <p className="text-sm text-ink-muted">
+          Want to know who's behind the servers?
+        </p>
+        <Link
+          to="/staff"
+          className="inline-flex items-center gap-2 border-2 border-border bg-surface-2 px-4 py-2 text-sm font-semibold text-ink hover:border-moss"
+        >
+          Meet the staff
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </div>
     </div>
   );
 }

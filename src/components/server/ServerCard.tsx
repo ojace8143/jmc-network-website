@@ -8,6 +8,7 @@ import { Card } from "../ui/Card";
 import { CopyableIp } from "../ui/CopyableIp";
 import { StatusIndicator } from "./StatusIndicator";
 import { cn } from "../../lib/cn";
+import { serverRoute } from "../../lib/paths";
 
 const accentStyles: Record<
   ServerConfig["accent"],
@@ -35,7 +36,7 @@ export function ServerCard({ serverId }: { serverId: "neo" | "fab" }) {
   const server = getServer(serverId);
   const { status, stale, refreshing, refresh } = useServerStatus(server);
   const accent = accentStyles[server.accent];
-  const href = server.id === "neo" ? "/neo" : "/fabric";
+  const href = serverRoute(server);
 
   return (
     <Card

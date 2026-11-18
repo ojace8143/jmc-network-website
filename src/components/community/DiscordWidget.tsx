@@ -19,6 +19,7 @@ export function DiscordWidget() {
         title="JMC Discord server widget"
         className="block h-[400px] w-full"
         allowTransparency
+        loading="lazy"
       />
     </div>
   );

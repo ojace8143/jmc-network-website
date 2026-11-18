@@ -1,13 +1,21 @@
 import { Link } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { servers, site } from "../../config/servers";
+import { serverRoute } from "../../lib/paths";
 
 const year = new Date().getFullYear();
+
+const siteLinks = [
+  { to: "/rules", label: "Rules" },
+  { to: "/news", label: "News" },
+  { to: "/staff", label: "Staff" },
+  { to: "/about", label: "About" },
+];
 
 export function Footer() {
   return (
     <footer className="relative z-10 border-t-2 border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 sm:grid-cols-2 md:grid-cols-4">
         {/* Brand */}
         <div>
           <p className="font-pixel text-sm text-ink">{site.name}</p>
@@ -23,7 +31,7 @@ export function Footer() {
             {servers.map((s) => (
               <li key={s.id}>
                 <Link
-                  to={s.id === "neo" ? "/neo" : "/fabric"}
+                  to={serverRoute(s)}
                   className="group flex items-center gap-3"
                 >
                   <span
@@ -41,6 +49,25 @@ export function Footer() {
                       {s.host}
                     </code>
                   </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Site */}
+        <div>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wide text-ink-faint">
+            Site
+          </h2>
+          <ul className="mt-3 space-y-3">
+            {siteLinks.map((l) => (
+              <li key={l.to}>
+                <Link
+                  to={l.to}
+                  className="text-sm text-ink-muted hover:text-moss"
+                >
+                  {l.label}
                 </Link>
               </li>
             ))}
