@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { site } from "../config/servers";
-import { checkServerStatus } from "../lib/status";
+import { checkServerStatus, getCachedStatus } from "../lib/status";
 import type { ServerConfig, ServerStatus } from "../types";
 
 type UseServerStatusResult = {
@@ -21,7 +21,8 @@ type UseServerStatusResult = {
  * Poll a server's status with the site-wide interval.
  *
  * Behavior:
- * - First render: `loading`.
+ * - First render: a fresh cached status if one exists (see
+ *   `getCachedStatus`), else `loading`.
  * - Polls every `site.statusPollMs`, pausing while the tab is hidden.
  * - Provider errors keep the last known good status visible (marked `stale`)
  *   instead of flashing the UI between states.
@@ -29,7 +30,9 @@ type UseServerStatusResult = {
 export function useServerStatus(
   server: ServerConfig,
 ): UseServerStatusResult {
-  const [status, setStatus] = useState<ServerStatus>({ kind: "loading" });
+  const [status, setStatus] = useState<ServerStatus>(
+    () => getCachedStatus(server) ?? { kind: "loading" },
+  );
   const [stale, setStale] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 

@@ -80,7 +80,9 @@ export async function checkServerStatus(
     site.statusTimeoutMs,
   );
   try {
-    return await fetchServerStatus(server, controller.signal);
+    const result = await fetchServerStatus(server, controller.signal);
+    setCachedStatus(server, result);
+    return result;
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
       return {
@@ -97,4 +99,52 @@ export async function checkServerStatus(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared cache                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How long a cached status counts as fresh, in milliseconds.
+ *
+ * Components that check the same server close together in time (Home card
+ * and server page open at once, manual refresh, tab re-focus) seed their
+ * state from this cache instead of firing a duplicate provider request.
+ */
+const CACHE_TTL_MS = 15_000;
+
+type CacheEntry = { status: ServerStatus; checkedAt: number };
+
+const statusCache = new Map<string, CacheEntry>();
+
+function cacheKey(server: ServerConfig): string {
+  return `${server.host}:${server.port}`;
+}
+
+/**
+ * Return a cached status for the server if one is still fresh, else null.
+ */
+export function getCachedStatus(
+  server: ServerConfig,
+): ServerStatus | null {
+  const entry = statusCache.get(cacheKey(server));
+  if (!entry) return null;
+  if (Date.now() - entry.checkedAt > CACHE_TTL_MS) return null;
+  return entry.status;
+}
+
+/**
+ * Store a resolved status in the shared cache.
+ *
+ * `loading` and `error` results are intentionally not cached: a fresh check
+ * is always better than a stale error, and "loading" is never useful to a
+ * later component.
+ */
+export function setCachedStatus(
+  server: ServerConfig,
+  status: ServerStatus,
+): void {
+  if (status.kind === "loading" || status.kind === "error") return;
+  statusCache.set(cacheKey(server), { status, checkedAt: status.checkedAt });
 }

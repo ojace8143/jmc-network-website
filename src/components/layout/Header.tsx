@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { site } from "../../config/servers";
@@ -36,6 +36,21 @@ function Logo() {
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  /** Close the menu and return focus to the toggle button. */
+  const close = useCallback(() => {
+    setOpen(false);
+    toggleRef.current?.focus();
+  }, []);
+
+  // When the menu opens, move focus into it (first link).
+  useEffect(() => {
+    if (!open) return;
+    const first = navRef.current?.querySelector<HTMLElement>("a");
+    first?.focus();
+  }, [open]);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -45,6 +60,35 @@ export function Header() {
         ? "border-moss text-ink"
         : "text-ink-muted hover:text-ink hover:border-border-strong",
     );
+
+  /**
+   * Keyboard handling for the open mobile menu:
+   * - Escape closes it and returns focus to the toggle.
+   * - Tab/Shift+Tab are trapped inside the menu while it is open.
+   */
+  const onNavKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      close();
+      return;
+    }
+    if (e.key === "Tab" && navRef.current) {
+      const focusables = Array.from(
+        navRef.current.querySelectorAll<HTMLElement>("a"),
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-border bg-bg/90 backdrop-blur-sm">
@@ -67,11 +111,15 @@ export function Header() {
 
         {/* Mobile toggle */}
         <button
+          ref={toggleRef}
           type="button"
           className="grid size-10 place-items-center border-2 border-border bg-surface text-ink md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => (open ? close() : setOpen(true))}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && open) close();
+          }}
         >
           {open ? (
             <X size={20} aria-hidden="true" />
@@ -85,9 +133,11 @@ export function Header() {
       {/* Mobile nav */}
       {open && (
         <nav
+          ref={navRef}
           id="mobile-nav"
           aria-label="Primary mobile"
           className="border-t-2 border-border bg-surface md:hidden"
+          onKeyDown={onNavKeyDown}
         >
           <ul className="mx-auto max-w-6xl px-4 py-2 sm:px-6">
             {navItems.map((item) => (

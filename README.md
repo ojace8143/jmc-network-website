@@ -45,33 +45,59 @@ npm run lint
 
 ```
 src/
-  config/servers.ts      Single source of truth: hosts, ports, status, Discord
+  config/servers.ts      Single source of truth: hosts, ports, versions, Java,
+                         modpacks, status, Discord, canonical URL
   types/index.ts         Shared types (ServerConfig, ServerStatus, News, Leaderboard)
   lib/
-    status.ts            Status provider layer (mcsrvstat / custom)
+    status.ts            Status provider layer (mcsrvstat / custom) + shared
+                         short-TTL status cache
+    paths.ts             serverRoute() — maps a server id to its /<id> route
+    time.ts              Relative-time formatter ("checked 42s ago")
     clipboard.ts         Copy-to-clipboard with fallback
     cn.ts                Class-name helper (clsx)
   hooks/
-    useServerStatus.ts   Polling, timeout, stale/refreshing state
+    useServerStatus.ts   Polling, timeout, stale/refreshing state (cache-seeded)
     useCopyToClipboard.ts
-    usePageMeta.ts       Per-page document title + meta description
+    usePageMeta.ts       Per-page title, meta description, canonical link
+    useNow.ts            Ticking "now" value for relative timestamps
   data/
     news.ts              News / announcements (static, newest-first at render)
     leaderboards.ts      Static leaderboard fallback (ships empty)
     rules.ts             Rules content (4 sections)
+    staff.ts             Staff list and role descriptions
   components/
     layout/              Layout, Header, Footer, Atmosphere (backgrounds)
-    ui/                  SectionHeading, Button, Card, Badge, CopyableIp, Skeleton, EmptyState
+    ui/                  SectionHeading, Button, Card, Badge, CopyableIp,
+                         Skeleton, EmptyState, ErrorBoundary
     server/              StatusIndicator, ServerCard, LeaderboardPanel
     community/           DiscordWidget
     news/                NewsItemCard
+  graphics/
+    og-image.svg         1200x630 Open Graph image (source of truth)
+    app-icon.svg         512x512 app icon (source of truth)
   pages/
-    Home.tsx
-    NeoForge.tsx / Fabric.tsx   (both render the shared detail page)
+    HomePage.tsx
+    NeoForgePage.tsx / FabricPage.tsx   (both render the shared detail page)
     ServerDetail.tsx            Shared server detail layout
-    Rules.tsx / News.tsx / About.tsx / NotFound.tsx
+    RulesPage.tsx / NewsPage.tsx / StaffPage.tsx / AboutPage.tsx / NotFoundPage.tsx
   App.tsx                 Router + all routes
-  main.tsx                Entry point, font imports
+  main.tsx                Entry point, font imports, top-level ErrorBoundary
+
+public/
+  favicon.svg            Browser tab icon
+  og-image.png           Open Graph image (rendered, committed)
+  icons/                 icon-192/512.png, apple-touch-icon.png (rendered, committed)
+  robots.txt             Crawler rules + sitemap pointer
+  sitemap.xml            All site routes
+
+scripts/
+  render-graphics.mjs    Renders the SVG sources to the committed PNGs
+                         (requires ImageMagick `magick`)
+
+.github/workflows/
+  deploy.yml             Production build -> gh-pages branch
+  preview.yml            Per-PR preview build -> preview/pr-<n>/
+  check.yml              Lint + typecheck on PRs and pushes to main
 ```
 
 ## Configuration
@@ -83,10 +109,12 @@ versions, or the Discord URL — they read from this module.
 ```ts
 export const site = {
   name: "JMC Network",
+  shortName: "JMC",
   tagline: "Two worlds. One community.",
+  url: "https://ojace8143.github.io/jmc-network-website/", // canonical URL
   discord: {
     widgetUrl: "https://discord.com/widget?id=...&theme=dark", // community widget on Home
-    inviteUrl: "",                                             // empty = invite buttons hidden
+    inviteUrl: "https://discord.gg/...",                       // empty = invite buttons hidden
   },
   statusPollMs: 60_000,   // how often status is re-polled
   statusTimeoutMs: 8_000, // per-request timeout for a status check
@@ -97,11 +125,18 @@ export const servers: ServerConfig[] = [
     id: "neo",
     name: "JMC NeoForge",
     platform: "NeoForge",
+    description: "The heavily modded experience — ...",
     host: "neo.orcweb.xyz",
     port: 25565,
     version: "1.21.1",
     accent: "forge",         // identity color token
     modProfile: "modded",
+    java: "Java 21",         // required runtime, shown as a badge
+    modpack: {
+      label: "Modpack",
+      url: "",               // non-empty = download button; empty = "coming soon" box
+      note: "Modpack coming soon — ...",
+    },
     status: { kind: "mcsrvstat" },
   },
   { /* JMC Fabric, analogous */ },
@@ -109,7 +144,8 @@ export const servers: ServerConfig[] = [
 ```
 
 To change a host, port, or version, edit the matching entry here. The `id`
-(`"neo"` / `"fab"`) is stable — it drives routes and config lookups.
+(`"neo"` / `"fab"`) is stable — it drives routes (`/<id>`, via
+`serverRoute()` in `src/lib/paths.ts`) and config lookups.
 
 ### Discord
 
@@ -138,7 +174,9 @@ Response shape (normalized internally):
 
 **Polling behavior**
 
-- First render shows a `loading` skeleton.
+- First render shows a `loading` skeleton — unless a *fresh* result is already
+  in the shared status cache (see below), in which case the cached status shows
+  immediately.
 - Re-checks every `site.statusPollMs` (60s). Polling **pauses while the tab is
   hidden** and re-checks immediately when the tab becomes visible again.
 - Each check has a `site.statusTimeoutMs` (8s) timeout.
@@ -147,6 +185,14 @@ Response shape (normalized internally):
   succeeded, the last known good status stays on screen and is flagged **stale**
   — the UI does not flash between states. A downed server (`online: false`) is a
   *definitive answer*, not an error.
+- The status readout shows a small "checked Xs ago" label so viewers can tell
+  how fresh the data is.
+
+**Shared cache.** `src/lib/status.ts` keeps one short-TTL (15s) cache of
+successful results, keyed by `host:port`. Components checking the same server
+close together (a Home card and its server page, tab re-focus, manual refresh)
+seed from the cache instead of firing duplicate provider requests. Errors and
+`loading` states are never cached.
 
 **Custom provider (self-hosted mcstatus).** To stop relying on the public API,
 set a server's `status` to a `custom` provider. It must return the same
@@ -206,7 +252,10 @@ News lives in **`src/data/news.ts`**. Each entry is a `NewsItem`:
 
 `src/components/server/LeaderboardPanel.tsx` resolves data in this order:
 
-1. `server.leaderboardEndpoint` — a live JSON endpoint (if configured).
+1. `server.leaderboardEndpoint` — a live JSON endpoint (if configured). Live
+   fetches abort after `site.statusTimeoutMs` so a wedged endpoint can never
+   hold the panel in a loading state, and successful results are kept in a
+   short (30s) mount cache so quick navigation back does not refetch.
 2. **`src/data/leaderboards.ts`** — static data, keyed by server `id`.
 3. A clearly labeled **"Leaderboards coming soon"** placeholder.
 
@@ -231,14 +280,56 @@ shows.
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite dev server with HMR |
-| `npm run build` | Type-check (`tsc -b`) and build the production bundle to `dist/` |
+| `npm run build` | Type-check (`tsc -b`), build the production bundle to `dist/`, then copy `dist/index.html` to `dist/404.html` (SPA deep-link fallback) |
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run `oxlint` |
+| `npm run render:graphics` | Re-render the SVG sources in `src/graphics/` to the committed PNGs in `public/` (needs ImageMagick `magick`) |
+
+### Graphics
+
+`src/graphics/og-image.svg` (1200x630) and `src/graphics/app-icon.svg` (512x512)
+are the **source of truth**. The rendered PNGs (`public/og-image.png`,
+`public/icons/icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) are
+committed, so CI and GitHub Pages never need to re-render them. To change the
+artwork: edit the SVG, run `npm run render:graphics`, commit both.
 
 ## Deployment
 
-`npm run build` produces a fully static `dist/` directory. Any static host
-(nginx, GitHub Pages, Netlify, Vercel, a Minecraft community host, etc.) works.
-Because the app uses client-side routing, configure your host to fall back
-unknown paths to `index.html` so deep links like `/neo` and `/news` resolve on
-refresh.
+`npm run build` produces a fully static `dist/` directory. The Vite base path
+defaults to `/jmc-network-website/` and can be overridden with the `SITE_BASE`
+environment variable (this is how PR previews work).
+
+### Production (GitHub Pages)
+
+- `deploy.yml` runs on every push to `main`: it builds and publishes `dist/`
+  to the **`gh-pages` branch** via `peaceiris/actions-gh-pages`. The branch
+  holds the whole build at its root and is replaced on every deploy. It is a
+  pure build artifact — **never hand-commit to it**.
+- The site is served at `https://ojace8143.github.io/jmc-network-website/`.
+  In **Settings → Pages**, the source must be **branch `gh-pages`,
+  `/ (root)`**.
+- Because the build copies `index.html` → `404.html`, GitHub Pages serves the
+  SPA shell for unknown paths and the router resolves deep links like `/neo`
+  on refresh.
+- Zero-downtime rollout: push the workflow first (the previous deploy keeps
+  serving), verify the `gh-pages` branch is populated, then flip the Pages
+  source to the `gh-pages` branch.
+
+### PR previews
+
+- `preview.yml` runs on pull requests from the main repository: it builds with
+  `SITE_BASE=/jmc-network-website/preview/pr-<number>/` and publishes to
+  `preview/pr-<number>/` on `gh-pages` with `keep_files: true`, so previews
+  live side by side and never wipe the production build.
+- The preview URL is
+  `https://ojace8143.github.io/jmc-network-website/preview/pr-<number>/`.
+- PRs from forks are skipped (they get a read-only token).
+- Known cosmetic caveat: refreshing a deep link inside a preview falls back to
+  the live site's 404 page.
+
+### Other hosts
+
+Any static host (nginx, Netlify, Vercel, a Minecraft community host, etc.)
+works. Set the base path to match (Vite `base` / `SITE_BASE`) and configure
+the host to fall back unknown paths to `index.html` so deep links like `/neo`
+and `/news` resolve on refresh.

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
+import { site } from "../../config/servers";
 import { leaderboards as staticBoards } from "../../data/leaderboards";
 import type { LeaderboardData, ServerConfig } from "../../types";
 import { Card } from "../ui/Card";
@@ -18,6 +19,30 @@ function resolveFallback(server: ServerConfig): LeaderboardData | null {
 }
 
 /**
+ * Short-lived mount cache.
+ *
+ * Navigating away from a server page and back within a few seconds would
+ * otherwise refetch the same endpoint immediately. A ready state fetched
+ * less than `MOUNT_CACHE_TTL_MS` ago is reused as the initial state.
+ */
+const MOUNT_CACHE_TTL_MS = 30_000;
+
+type MountCacheEntry = { data: LeaderboardData; at: number };
+
+const mountCache = new Map<string, MountCacheEntry>();
+
+function mountKey(server: ServerConfig): string {
+  return server.leaderboardEndpoint ?? `static:${server.id}`;
+}
+
+function getCachedBoard(server: ServerConfig): LeaderboardData | null {
+  const entry = mountCache.get(mountKey(server));
+  if (!entry) return null;
+  if (Date.now() - entry.at > MOUNT_CACHE_TTL_MS) return null;
+  return entry.data;
+}
+
+/**
  * Leaderboard for a server.
  *
  * Resolution order:
@@ -28,7 +53,10 @@ function resolveFallback(server: ServerConfig): LeaderboardData | null {
  * We never fabricate stats: with no data anywhere, the placeholder shows.
  */
 export function LeaderboardPanel({ server }: { server: ServerConfig }) {
-  const [state, setState] = useState<PanelState>({ kind: "loading" });
+  const [state, setState] = useState<PanelState>(() => {
+    const cached = getCachedBoard(server);
+    return cached ? { kind: "ready", data: cached } : { kind: "loading" };
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -38,18 +66,34 @@ export function LeaderboardPanel({ server }: { server: ServerConfig }) {
 
       if (endpoint) {
         try {
-          const res = await fetch(endpoint, {
-            headers: { accept: "application/json" },
-          });
-          if (res.ok) {
-            const json = (await res.json()) as LeaderboardData;
-            if (json && Array.isArray(json.entries)) {
-              if (!cancelled) setState({ kind: "ready", data: json });
-              return;
+          // Abort after the site-wide timeout so a wedged endpoint can
+          // never hold the panel in a loading state.
+          const controller = new AbortController();
+          const timeout = window.setTimeout(
+            () => controller.abort(),
+            site.statusTimeoutMs,
+          );
+          try {
+            const res = await fetch(endpoint, {
+              signal: controller.signal,
+              headers: { accept: "application/json" },
+            });
+            if (res.ok) {
+              const json = (await res.json()) as LeaderboardData;
+              if (json && Array.isArray(json.entries)) {
+                mountCache.set(mountKey(server), {
+                  data: json,
+                  at: Date.now(),
+                });
+                if (!cancelled) setState({ kind: "ready", data: json });
+                return;
+              }
             }
+          } finally {
+            window.clearTimeout(timeout);
           }
         } catch {
-          // fall through to static data
+          // Timeout or network error: fall through to static data.
         }
       }
 

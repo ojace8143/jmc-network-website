@@ -1,7 +1,9 @@
 import { AlertTriangle, Loader2, Users } from "lucide-react";
 import type { ServerStatus } from "../../types";
+import { useNow } from "../../hooks/useNow";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "../../lib/cn";
+import { formatCheckedAgo } from "../../lib/time";
 
 function Dot({ className }: { className?: string }) {
   return (
@@ -32,6 +34,14 @@ export function StatusIndicator({
   refreshing: boolean;
   className?: string;
 }) {
+  // Ticks every 5s so the "checked Xs ago" label stays roughly current.
+  const now = useNow(5_000);
+  // When `stale` we already say "last seen"; the age label would be noise.
+  const checkedAgo =
+    status.kind !== "loading" && !stale
+      ? `checked ${formatCheckedAgo(status.checkedAt, now)}`
+      : null;
+
   if (status.kind === "loading") {
     return (
       <div
@@ -74,6 +84,9 @@ export function StatusIndicator({
             last seen
           </span>
         )}
+        {checkedAgo && (
+          <span className="text-[10px] text-ink-faint">{checkedAgo}</span>
+        )}
       </div>
     );
   }
@@ -88,6 +101,9 @@ export function StatusIndicator({
         <span className="text-xs text-ink-faint">
           {stale ? "(last checked, provider unreachable)" : "server is down"}
         </span>
+        {checkedAgo && (
+          <span className="text-[10px] text-ink-faint">{checkedAgo}</span>
+        )}
       </div>
     );
   }
@@ -101,6 +117,9 @@ export function StatusIndicator({
         <span className="font-semibold">Status unavailable</span>
       </span>
       <span className="text-xs text-ink-faint">{status.message}</span>
+      {checkedAgo && (
+        <span className="text-[10px] text-ink-faint">{checkedAgo}</span>
+      )}
     </div>
   );
 }
