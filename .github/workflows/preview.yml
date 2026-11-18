@@ -1,0 +1,49 @@
+# Build a preview of an open pull request and publish it under
+#   https://<owner>.github.io/<repo>/preview/pr-{N}/
+# on the same gh-pages branch that holds the production build.
+#
+# Caveats:
+# - A `main` deploy replaces the whole gh-pages branch, wiping any open
+#   preview subtrees. Previews are throwaway; this is fine.
+# - Fork PRs are skipped: GITHUB_TOKEN is read-only for forks, so it
+#   cannot push to this repo's gh-pages branch.
+name: Deploy PR preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    # Skip fork PRs (their token cannot push to this repo).
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build (preview base)
+        env:
+          SITE_BASE: /jmc-network-website/preview/pr-${{ github.event.pull_request.number }}/
+        run: npm run build
+      - name: Publish preview to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          # Land under preview/ and keep the production build at the root.
+          destination_dir: preview
+          keep_files: true
