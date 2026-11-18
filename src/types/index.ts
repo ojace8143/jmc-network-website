@@ -119,3 +119,18 @@ export type LeaderboardData = {
   unit?: string;
   entries: LeaderboardEntry[];
 };
+
+/* ------------------------------------------------------------------ */
+/* Staff                                                               */
+/* ------------------------------------------------------------------ */
+
+/** A staff role on the JMC Network. */
+export type StaffRole = "owner" | "moderator" | "judge";
+
+/** A staff member shown on the Staff page. */
+export type StaffMember = {
+  /** Display name. */
+  name: string;
+  /** Staff role. */
+  role: StaffRole;
+};

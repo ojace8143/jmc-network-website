@@ -5,6 +5,7 @@ import { NeoForgePage } from "./pages/NeoForgePage";
 import { FabricPage } from "./pages/FabricPage";
 import { RulesPage } from "./pages/RulesPage";
 import { NewsPage } from "./pages/NewsPage";
+import { StaffPage } from "./pages/StaffPage";
 import { AboutPage } from "./pages/AboutPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/fabric" element={<FabricPage />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/staff" element={<StaffPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
