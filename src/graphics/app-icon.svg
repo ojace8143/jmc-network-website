@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!--
+    Source of truth for public/icons/icon-512.png (and 192/180 derivatives).
+    Re-render with: npm run render:graphics
+  -->
+  <rect width="512" height="512" fill="#0b0e0c" />
+
+  <!-- Hard offset shadow under the 2x2 grid -->
+  <rect x="104" y="104" width="320" height="320" fill="#000000" />
+
+  <g>
+    <!-- Moss -->
+    <rect x="96" y="96" width="150" height="150" fill="#9cc08a" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="98" y="98" width="146" height="34" fill="#b6d3a6" />
+    <rect x="98" y="204" width="146" height="40" fill="#7ba05b" />
+    <!-- Forge -->
+    <rect x="266" y="96" width="150" height="150" fill="#e5b078" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="268" y="98" width="146" height="34" fill="#f0c99c" />
+    <rect x="268" y="204" width="146" height="40" fill="#c98b3e" />
+    <!-- Weave -->
+    <rect x="96" y="266" width="150" height="150" fill="#7ed4c4" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="98" y="268" width="146" height="34" fill="#a3e2d6" />
+    <rect x="98" y="374" width="146" height="40" fill="#4fa393" />
+    <!-- Ink -->
+    <rect x="266" y="266" width="150" height="150" fill="#e8ede8" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="268" y="268" width="146" height="34" fill="#f4f7f4" />
+    <rect x="268" y="374" width="146" height="40" fill="#9aa69c" />
+  </g>
+</svg>

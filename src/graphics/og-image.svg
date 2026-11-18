@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!--
+    Source of truth for public/og-image.png (1200x630, link-preview image).
+    Re-render with: npm run render:graphics
+  -->
+  <defs>
+    <radialGradient id="glowMoss" cx="18%" cy="-10%" r="65%">
+      <stop offset="0%" stop-color="#9cc08a" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#9cc08a" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowForge" cx="105%" cy="15%" r="60%">
+      <stop offset="0%" stop-color="#e5b078" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#e5b078" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowWeave" cx="85%" cy="115%" r="60%">
+      <stop offset="0%" stop-color="#7ed4c4" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#7ed4c4" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background + glows -->
+  <rect width="1200" height="630" fill="#0b0e0c" />
+  <rect width="1200" height="630" fill="url(#glowMoss)" />
+  <rect width="1200" height="630" fill="url(#glowForge)" />
+  <rect width="1200" height="630" fill="url(#glowWeave)" />
+
+  <!-- Blocky frame -->
+  <rect x="4" y="4" width="1192" height="622" fill="none" stroke="#232b25" stroke-width="4" />
+
+  <!-- Four-block JMC mark: hard offset shadow, then 2x2 grid -->
+  <rect x="118" y="165" width="320" height="320" fill="#000000" />
+  <g>
+    <!-- Moss -->
+    <rect x="108" y="155" width="150" height="150" fill="#9cc08a" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="110" y="157" width="146" height="34" fill="#b6d3a6" />
+    <rect x="110" y="263" width="146" height="40" fill="#7ba05b" />
+    <!-- Forge -->
+    <rect x="278" y="155" width="150" height="150" fill="#e5b078" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="280" y="157" width="146" height="34" fill="#f0c99c" />
+    <rect x="280" y="263" width="146" height="40" fill="#c98b3e" />
+    <!-- Weave -->
+    <rect x="108" y="325" width="150" height="150" fill="#7ed4c4" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="110" y="327" width="146" height="34" fill="#a3e2d6" />
+    <rect x="110" y="433" width="146" height="40" fill="#4fa393" />
+    <!-- Ink -->
+    <rect x="278" y="325" width="150" height="150" fill="#e8ede8" stroke="#0b0e0c" stroke-width="4" />
+    <rect x="280" y="327" width="146" height="34" fill="#f4f7f4" />
+    <rect x="280" y="433" width="146" height="40" fill="#9aa69c" />
+  </g>
+
+  <!-- Wordmark -->
+  <text x="500" y="290" font-family="JetBrainsMono-NF-Bold, DejaVu-Sans-Mono-Bold, monospace" font-size="84" font-weight="bold" fill="#e8ede8" letter-spacing="2">JMC NETWORK</text>
+  <text x="502" y="364" font-family="JetBrainsMono-NF-Bold, DejaVu-Sans-Mono-Bold, monospace" font-size="34" font-weight="bold" fill="#9cc08a" letter-spacing="1">Two worlds. One community.</text>
+
+  <!-- Server IPs -->
+  <text x="1150" y="540" text-anchor="end" font-family="JetBrainsMono-NF-SemiBold, DejaVu-Sans-Mono-Bold, monospace" font-size="30" font-weight="bold" fill="#e5b078">neo.orcweb.xyz</text>
+  <text x="1150" y="580" text-anchor="end" font-family="JetBrainsMono-NF-SemiBold, DejaVu-Sans-Mono-Bold, monospace" font-size="30" font-weight="bold" fill="#7ed4c4">fab.orcweb.xyz</text>
+</svg>
