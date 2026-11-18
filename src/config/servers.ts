@@ -12,6 +12,11 @@ export const site = {
   name: "JMC Network",
   shortName: "JMC",
   tagline: "Two worlds. One community.",
+  /**
+   * Canonical site URL (trailing slash). Used for OG tags, per-page
+   * canonical links, and the sitemap.
+   */
+  url: "https://ojace8143.github.io/jmc-network-website/",
   discord: {
     /**
      * Widget embed URL shown on the Home page. Requires the server's widget

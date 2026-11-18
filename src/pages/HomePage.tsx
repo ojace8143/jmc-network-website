@@ -9,7 +9,10 @@ import { Button } from "../components/ui/Button";
 import { SectionHeading } from "../components/ui/SectionHeading";
 
 export function HomePage() {
-  usePageMeta();
+  usePageMeta(
+    undefined,
+    "JMC Network — home of the Jace Minecraft Community. Two Minecraft servers: NeoForge (heavily modded) and Fabric (vanilla+). Join us on neo.orcweb.xyz and fab.orcweb.xyz.",
+  );
 
   const latestNews = [...news]
     .sort((a, b) => b.date.localeCompare(a.date))

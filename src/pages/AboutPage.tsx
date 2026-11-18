@@ -23,7 +23,10 @@ const values = [
 ];
 
 export function AboutPage() {
-  usePageMeta("About");
+  usePageMeta(
+    "About",
+    "JMC Network is the home of the Jace Minecraft Community — two Minecraft 1.21.1 servers sharing one community on Discord.",
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">

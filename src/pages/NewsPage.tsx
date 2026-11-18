@@ -15,7 +15,10 @@ function isCategory(value: string | null): value is Category {
 }
 
 export function NewsPage() {
-  usePageMeta("News");
+  usePageMeta(
+    "News",
+    "Updates, maintenance windows, seasons, and events across both JMC servers. New entries land here first.",
+  );
 
   const [searchParams, setSearchParams] = useSearchParams();
   const raw = searchParams.get("filter");

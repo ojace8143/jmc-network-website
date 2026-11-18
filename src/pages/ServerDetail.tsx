@@ -80,7 +80,7 @@ const fabFeatures: Feature[] = [
 function ServerDetail({ serverId }: { serverId: "neo" | "fab" }) {
   const server = getServer(serverId);
   const { status, stale, refreshing, refresh } = useServerStatus(server);
-  usePageMeta(server.name);
+  usePageMeta(server.name, `${server.description} Play at ${server.host}.`);
 
   const features = server.id === "neo" ? neoFeatures : fabFeatures;
   const accentText = server.accent === "forge" ? "text-forge" : "text-weave";

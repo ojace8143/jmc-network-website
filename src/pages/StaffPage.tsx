@@ -43,7 +43,10 @@ function initials(name: string) {
 }
 
 export function StaffPage() {
-  usePageMeta("Staff");
+  usePageMeta(
+    "Staff",
+    "Meet the staff who keep JMC Network running — the owner, moderators, and judges.",
+  );
 
   const sorted = [...staff].sort(
     (a, b) => roleInfo[a.role].rank - roleInfo[b.role].rank,

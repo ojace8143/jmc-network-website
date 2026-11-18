@@ -5,7 +5,10 @@ import { Card } from "../components/ui/Card";
 import { SectionHeading } from "../components/ui/SectionHeading";
 
 export function RulesPage() {
-  usePageMeta("Rules");
+  usePageMeta(
+    "Rules",
+    "The rules that apply to both JMC servers — kept simple and reasonable, with an explanation behind every punishment.",
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
