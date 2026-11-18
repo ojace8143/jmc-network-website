@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   Cpu,
+  Download,
   Gamepad2,
   Heart,
   Leaf,
@@ -84,6 +85,19 @@ function ServerDetail({ serverId }: { serverId: "neo" | "fab" }) {
   const features = server.id === "neo" ? neoFeatures : fabFeatures;
   const accentText = server.accent === "forge" ? "text-forge" : "text-weave";
   const accentBadge = server.accent === "forge" ? "forge" : "weave";
+  const joinSteps =
+    server.modProfile === "modded"
+      ? [
+          "Get the modpack from the box below — it installs NeoForge and every mod for you.",
+          `Open Minecraft ${server.version} and launch with the JMC modpack profile.`,
+          "Add a server and paste the IP below.",
+          "Join and say hi in chat. Welcome to JMC.",
+        ]
+      : [
+          `Open Minecraft ${server.version} and select Multiplayer.`,
+          "Add a server and paste the IP below.",
+          "Join and say hi in chat. Welcome to JMC.",
+        ];
   const backHref = server.id === "neo" ? "/fabric" : "/neo";
   const otherName = server.id === "neo" ? "Fabric" : "NeoForge";
 
@@ -111,6 +125,7 @@ function ServerDetail({ serverId }: { serverId: "neo" | "fab" }) {
             {server.modProfile === "modded" ? "Modded" : "Vanilla+"}
           </Badge>
           <Badge tone="neutral">Minecraft {server.version}</Badge>
+          {server.java && <Badge tone="neutral">{server.java}</Badge>}
         </div>
         <h1 className="mt-4 font-display text-4xl font-bold text-ink sm:text-5xl">
           {server.name}
@@ -130,28 +145,45 @@ function ServerDetail({ serverId }: { serverId: "neo" | "fab" }) {
             How to join
           </h2>
           <ol className="mt-4 space-y-3 text-sm text-ink-muted">
-            <li className="flex items-start gap-3">
-              <span className="grid size-6 shrink-0 place-items-center border-2 border-border-strong bg-surface-2 font-pixel text-[10px] text-moss">
-                1
-              </span>
-              Open Minecraft {server.version} and select{" "}
-              {server.modProfile === "modded"
-                ? `NeoForge (${server.version})`
-                : "Multiplayer"}.
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="grid size-6 shrink-0 place-items-center border-2 border-border-strong bg-surface-2 font-pixel text-[10px] text-moss">
-                2
-              </span>
-              Add a server and paste the IP below.
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="grid size-6 shrink-0 place-items-center border-2 border-border-strong bg-surface-2 font-pixel text-[10px] text-moss">
-                3
-              </span>
-              Join and say hi in chat. Welcome to JMC.
-            </li>
+            {joinSteps.map((step, i) => (
+              <li key={step} className="flex items-start gap-3">
+                <span className="grid size-6 shrink-0 place-items-center border-2 border-border-strong bg-surface-2 font-pixel text-[10px] text-moss">
+                  {i + 1}
+                </span>
+                {step}
+              </li>
+            ))}
           </ol>
+          {server.modpack &&
+            (server.modpack.url ? (
+              <div className="mt-5 flex flex-wrap items-center gap-3 border-2 border-border bg-bg/60 px-4 py-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
+                  {server.modpack.label}
+                </span>
+                <Button
+                  href={server.modpack.url}
+                  target="_blank"
+                  variant="secondary"
+                >
+                  <Download size={16} aria-hidden="true" />
+                  Get the {server.modpack.label.toLowerCase()}
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 border-2 border-dashed border-border-strong bg-bg/60 px-4 py-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
+                  {server.modpack.label}
+                </span>
+                <span className="font-pixel text-[10px] uppercase tracking-wide text-ink-faint">
+                  Coming soon
+                </span>
+                {server.modpack.note && (
+                  <p className="basis-full text-xs leading-relaxed text-ink-muted">
+                    {server.modpack.note}
+                  </p>
+                )}
+              </div>
+            ))}
           <div className="mt-5 flex flex-wrap items-center gap-3 border-2 border-border bg-bg/60 px-4 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
               Server IP

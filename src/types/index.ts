@@ -41,6 +41,20 @@ export type ServerConfig = {
   accent: "forge" | "weave";
   /** Modding profile of the server. */
   modProfile: "modded" | "vanilla-plus";
+  /** Optional Java requirement label, e.g. "Java 21". */
+  java?: string;
+  /**
+   * Modpack / mod list information shown on the server page. When `url` is
+   * empty the UI renders a dashed "coming soon" box instead of a link.
+   */
+  modpack?: {
+    /** Display label, e.g. "Modpack" or "Mod list". */
+    label: string;
+    /** Download / page URL. Empty string = not published yet. */
+    url: string;
+    /** Optional one-line note shown inside the box. */
+    note?: string;
+  };
   /** Status provider configuration. */
   status: StatusProvider;
   /**

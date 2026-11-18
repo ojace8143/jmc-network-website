@@ -22,7 +22,7 @@ export const site = {
     /**
      * Optional invite link. Leave empty to hide invite buttons.
      */
-    inviteUrl: "",
+    inviteUrl: "https://discord.gg/EVNreD97ZA",
   },
   /** How often server status is re-polled, in milliseconds. */
   statusPollMs: 60_000,
@@ -54,6 +54,13 @@ export const servers: ServerConfig[] = [
     version: "1.21.1",
     accent: "forge",
     modProfile: "modded",
+    java: "Java 21",
+    modpack: {
+      label: "Modpack",
+      url: "",
+      note:
+        "Modpack coming soon — we'll post the link here and on Discord the moment it's ready.",
+    },
     status: { kind: "mcsrvstat" },
   },
   {
@@ -67,6 +74,12 @@ export const servers: ServerConfig[] = [
     version: "1.21.1",
     accent: "weave",
     modProfile: "vanilla-plus",
+    java: "Java 21",
+    modpack: {
+      label: "Mod list",
+      url: "",
+      note: "Mod list coming soon — a plain vanilla client works for now.",
+    },
     status: { kind: "mcsrvstat" },
   },
 ];
