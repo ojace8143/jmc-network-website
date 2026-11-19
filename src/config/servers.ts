@@ -33,6 +33,14 @@ export const site = {
   statusPollMs: 60_000,
   /** Per-request timeout for status checks, in milliseconds. */
   statusTimeoutMs: 8_000,
+  /**
+   * Analytics. The site ships with zero tracking by default. To add a
+   * privacy-friendly counter, set `provider` to "plausible" or "umami" and
+   * point `scriptUrl` at the hosted snippet (e.g.
+   * https://plausible.io/js/script.js), then add a matching
+   * <script src="..." async defer> tag to index.html.
+   */
+  analytics: { provider: "none", scriptUrl: "" },
 } as const;
 
 /**

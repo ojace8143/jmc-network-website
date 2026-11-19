@@ -87,12 +87,16 @@ public/
   favicon.svg            Browser tab icon
   og-image.png           Open Graph image (rendered, committed)
   icons/                 icon-192/512.png, apple-touch-icon.png (rendered, committed)
+  manifest.webmanifest   PWA manifest (install prompt, theme, icons)
+  sw.js                  Service worker (offline shell, installable)
   robots.txt             Crawler rules + sitemap pointer
   sitemap.xml            All site routes
 
 scripts/
   render-graphics.mjs    Renders the SVG sources to the committed PNGs
                          (requires ImageMagick `magick`)
+  build-feed.mjs         Generates dist/feed.xml from src/data/news.ts
+                         (runs as part of `npm run build`)
 
 .github/workflows/
   deploy.yml             Production build -> gh-pages branch
@@ -248,6 +252,15 @@ News lives in **`src/data/news.ts`**. Each entry is a `NewsItem`:
 - Entries are sorted newest-first at render time, so the order in the array does
   not matter. Add a new object to the array to publish.
 
+### RSS feed
+
+`npm run build` also generates **`dist/feed.xml`** from the same
+`src/data/news.ts` data (`scripts/build-feed.mjs`). The feed is linked from
+`index.html` (`<link rel="alternate" type="application/rss+xml">`) and is
+available at `https://ojace8143.github.io/jmc-network-website/feed.xml`.
+Entries without an external `link` point at the News page anchor
+(`/news#<id>`).
+
 ## Leaderboards
 
 `src/components/server/LeaderboardPanel.tsx` resolves data in this order:
@@ -275,12 +288,37 @@ data instead, fill in `src/data/leaderboards.ts` (it ships empty on purpose —
 the site never invents stats). If neither source has data, the placeholder
 shows.
 
+## PWA
+
+The site is installable and has a basic offline fallback:
+
+- **`public/manifest.webmanifest`** — name, theme colors, icons. Referenced
+  from `index.html`; the 192/512 PNGs are the committed renders from
+  `src/graphics/app-icon.svg`.
+- **`public/sw.js`** — precaches the app shell (index, 404 shell, manifest,
+  icons); navigations are network-first with the cached SPA shell as the
+  offline fallback; hashed `/assets/` are cache-first (immutable);
+  cross-origin requests (Discord widget, mcsrvstat API) are never
+  intercepted. Registered in `src/main.tsx` at the build's own base, so each
+  PR preview scopes its worker to its own preview path, and the site-root
+  build skips registration on preview paths.
+
+There is no push notifications, background sync, or offline data: live status
+still needs the network.
+
+## Analytics
+
+`site.analytics` in `src/config/servers.ts` is a stub — the site ships with
+**zero tracking**. When an account exists, set `provider` to `"plausible"` or
+`"umami"`, point `scriptUrl` at the hosted snippet, and add the matching
+`<script>` tag to `index.html`.
+
 ## Scripts
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite dev server with HMR |
-| `npm run build` | Type-check (`tsc -b`), build the production bundle to `dist/`, then copy `dist/index.html` to `dist/404.html` (SPA deep-link fallback) |
+| `npm run build` | Type-check (`tsc -b`), build the production bundle to `dist/`, generate `dist/feed.xml`, then copy `dist/index.html` to `dist/404.html` (SPA deep-link fallback) |
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run `oxlint` |
 | `npm run render:graphics` | Re-render the SVG sources in `src/graphics/` to the committed PNGs in `public/` (needs ImageMagick `magick`) |
