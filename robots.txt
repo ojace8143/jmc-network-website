@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# PR previews are throwaway builds; keep crawlers out.
+Disallow: /jmc-network-website/preview/
+
+Sitemap: https://ojace8143.github.io/jmc-network-website/sitemap.xml
